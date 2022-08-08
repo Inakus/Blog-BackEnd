@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended : false}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 
 const mongoDBLink = process.env.MONGO_DB_LINK
@@ -33,40 +33,43 @@ app.route('/')
         });
     })
     .post((req, res) => {
+        const title = req.body.title;
+        const content = req.body.content;
+
         const newPost = new Blog({
-            title: req.body.title,
-            content: req.body.content
+            title: title,
+            content: content
         });
-        newPost.save(err => {err ? console.log(err) : res.send('Succesfully added new Post')});
+        newPost.save(err => {err ? res.send(err) : res.send('Succesfully added new Post')});
     })
     .delete((req, res) => {
         Blog.deleteMany(err => {
-            err ? console.log(err) : res.send('Succesfully deleted all account');
+            err ? res.send(err) : res.send('Succesfully deleted all account');
         })
     });
 
-app.route('/:title')
+app.route('/:id')
     .get((req, res) => {
-        const title = req.params.title;
-        Blog.find({title: title}, (err, foundPost) => {
-            foundPost ? res.send(foundPost) : console.log(err);
+        const id = req.params.id;
+        Blog.find({_id: id}, (err, foundPost) => {
+            foundPost ? res.send(JSON.stringify(foundPost)) : console.log(err);
         });
     })
     .put((req, res) => {
-        const title = req.params.title;
-        Blog.replaceOne({title: title}, {title: req.body.title, content: req.body.content}, err => {
+        const id = req.params.id;
+        Blog.replaceOne({_id: id}, {title: req.body.title, content: req.body.content}, err => {
             err ? res.send(err) : res.send("Succesfully update post.");
         });
     })
     .patch((req, res) => {
-        const title = req.params.title;
-        Blog.updateOne({title: title}, {title: req.body.title, content: req.body.content}, err => {
+        const id = req.params.id;
+        Blog.updateOne({_id: id}, {title: req.body.title, content: req.body.content}, err => {
             err ? res.send(err) : res.send("Succesfully update post.");
         }); 
     })
     .delete((req, res) => {
-        const title = req.params.title;
-        Blog.deleteOne({title: title}, err => {
+        const id = req.params.id;
+        Blog.deleteOne({_id: id}, err => {
             err ? res.send(err) : res.send("Succesfully deleted post");
         });
     });
