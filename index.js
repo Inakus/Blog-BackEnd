@@ -28,8 +28,8 @@ mongoConnect(mongoDBLink).catch(err => {console.log(err)});
 
 app.route('/')
     .get((req, res) => {
-        Blog.find((err, users) => {
-            err ? console.log(err) : res.send(users);
+        Blog.find((err, post) => {
+            err ? res.send(err) : res.send(post);
         });
     })
     .post((req, res) => {
