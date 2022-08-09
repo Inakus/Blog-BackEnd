@@ -44,7 +44,7 @@ app.route('/')
     })
     .delete((req, res) => {
         Blog.deleteMany(err => {
-            err ? res.send(err) : res.send('Succesfully deleted all account');
+            err ? res.send(err) : res.send('Succesfully deleted all Post');
         })
     });
 
