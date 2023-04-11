@@ -1,79 +1,96 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose')
-const cors = require('cors');
-require('dotenv').config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
-const mongoDBLink = process.env.MONGO_DB_LINK
+const mongoDBLink = process.env.MONGO_DB_LINK;
+const PORT = process.env.PORT | 4000;
 
 async function mongoConnect() {
-    await mongoose.connect(mongoDBLink);
+  await mongoose.connect(mongoDBLink);
 }
 
-mongoConnect().catch(err => {console.error(err)});
-
-const blogSchema = new mongoose.Schema({
-    title: String,
-    content: String
+mongoConnect().catch((err) => {
+  console.error(err);
 });
 
-const Blog = new mongoose.model('Blog', blogSchema);
+const blogSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+});
 
-mongoConnect(mongoDBLink).catch(err => {console.log(err)});
+const Blog = new mongoose.model("Blog", blogSchema);
 
-app.route('/')
-    .get((req, res) => {
-        Blog.find((err, post) => {
-            err ? res.send(err) : res.send(post);
-        });
-    })
-    .post((req, res) => {
-        const title = req.body.title;
-        const content = req.body.content;
+mongoConnect(mongoDBLink).catch((err) => {
+  console.log(err);
+});
 
-        const newPost = new Blog({
-            title: title,
-            content: content
-        });
-        newPost.save(err => {err ? res.send(err) : res.send('Succesfully added new Post')});
-    })
-    .delete((req, res) => {
-        Blog.deleteMany(err => {
-            err ? res.send(err) : res.send('Succesfully deleted all Post');
-        })
+app
+  .route("/")
+  .get((req, res) => {
+    Blog.find((err, post) => {
+      err ? res.send(err) : res.send(post);
     });
+  })
+  .post((req, res) => {
+    const title = req.body.title;
+    const content = req.body.content;
 
-app.route('/:id')
-    .get((req, res) => {
-        const id = req.params.id;
-        Blog.find({_id: id}, (err, foundPost) => {
-            foundPost ? res.send(JSON.stringify(foundPost)) : console.log(err);
-        });
-    })
-    .put((req, res) => {
-        const id = req.params.id;
-        Blog.replaceOne({_id: id}, {title: req.body.title, content: req.body.content}, err => {
-            err ? res.send(err) : res.send("Succesfully update post.");
-        });
-    })
-    .patch((req, res) => {
-        const id = req.params.id;
-        Blog.updateOne({_id: id}, {title: req.body.title, content: req.body.content}, err => {
-            err ? res.send(err) : res.send("Succesfully update post.");
-        }); 
-    })
-    .delete((req, res) => {
-        const id = req.params.id;
-        Blog.deleteOne({_id: id}, err => {
-            err ? res.send(err) : res.send("Succesfully deleted post");
-        });
+    const newPost = new Blog({
+      title: title,
+      content: content,
     });
+    newPost.save((err) => {
+      err ? res.send(err) : res.send("Succesfully added new Post");
+    });
+  })
+  .delete((req, res) => {
+    Blog.deleteMany((err) => {
+      err ? res.send(err) : res.send("Succesfully deleted all Post");
+    });
+  });
 
-app.listen(4000, () => {
-    console.log('Created server on port 4000');
-})
+app
+  .route("/:id")
+  .get((req, res) => {
+    const id = req.params.id;
+    Blog.find({ _id: id }, (err, foundPost) => {
+      foundPost ? res.send(JSON.stringify(foundPost)) : console.log(err);
+    });
+  })
+  .put((req, res) => {
+    const id = req.params.id;
+    Blog.replaceOne(
+      { _id: id },
+      { title: req.body.title, content: req.body.content },
+      (err) => {
+        err ? res.send(err) : res.send("Succesfully update post.");
+      }
+    );
+  })
+  .patch((req, res) => {
+    const id = req.params.id;
+    Blog.updateOne(
+      { _id: id },
+      { title: req.body.title, content: req.body.content },
+      (err) => {
+        err ? res.send(err) : res.send("Succesfully update post.");
+      }
+    );
+  })
+  .delete((req, res) => {
+    const id = req.params.id;
+    Blog.deleteOne({ _id: id }, (err) => {
+      err ? res.send(err) : res.send("Succesfully deleted post");
+    });
+  });
+
+app.listen(PORT, () => {
+  console.log("Created server on port 4000");
+});
